@@ -3,7 +3,7 @@ pipeline {
 
     tools {
         maven 'Maven 3.8.5'   // Nom Maven installé dans Jenkins 
-        jdk 'JDK17'     // Nom JDK 17 configuré dans Jenkins 
+        jdk 'JDK17'           // Nom JDK 17 configuré dans Jenkins 
     }
 
     environment {
@@ -13,20 +13,23 @@ pipeline {
     stages {
         stage('Build') {
             steps {
-                echo 'Compilation du projet...'
+                echo '📦 Compilation du projet...'
                 sh 'mvn clean compile'
             }
         }
 
         stage('Test') {
             steps {
-                echo ' Exécution des tests...'
+                echo '🧪 Exécution des tests...'
                 sh 'mvn test'
             }
             post {
                 always {
                     // Publication des rapports JUnit
                     junit '**/target/surefire-reports/*.xml'
+
+                    // Publication des rapports JaCoCo si présents
+                    jacoco execPattern: '**/target/jacoco.exec'
                 }
                 failure {
                     // Arrêt du pipeline si tests échouent
@@ -37,11 +40,23 @@ pipeline {
 
         stage('SonarQube Analysis') {
             steps {
-                echo 'Analyse SonarQube en cours...'
+                echo ' Analyse SonarQube en cours...'
                 withSonarQubeEnv(SONARQUBE_ENV) {
                     sh 'mvn sonar:sonar'
                 }
             }
+        }
+    }
+
+    post {
+        success {
+            echo ' Build terminé avec succès.'
+        }
+        failure {
+            echo ' Build échoué.'
+        }
+        always {
+            echo 'Pipeline terminé.'
         }
     }
 }
