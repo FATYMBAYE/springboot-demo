@@ -37,7 +37,7 @@ pipeline {
 
         stage('SonarQube Analysis') {
             steps {
-                echo '🔍 Analyse SonarQube en cours...'
+                echo 'Analyse SonarQube en cours...'
                 withSonarQubeEnv(SONARQUBE_ENV) {
                     sh 'mvn sonar:sonar'
                 }
